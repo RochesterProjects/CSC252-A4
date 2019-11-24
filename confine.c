@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/wait.h>
 #include <sys/types.h> 
  #include <sys/time.h>
@@ -38,7 +39,29 @@ int main(int argc, char *argv[]) {
     printf("error, failed to fork\n");
     exit(1);
   }
-  else if(child_pid > 0){ //parent handling of what happened in execve
+  if(child_pid == 0){//child
+     getrlimit (RLIMIT_DATA, &rlMem);
+    rlMem.rlim_cur = 1024;
+    rlMem.rlim_max = 1024;
+    setrlimit (RLIMIT_DATA, &rlMem);
+
+    getrlimit (RLIMIT_FSIZE, &rlFSize);
+    rlFSize.rlim_cur = 1024*1024;
+    rlFSize.rlim_max = 1024*1024;
+    setrlimit (RLIMIT_FSIZE, &rlFSize);
+
+     getrlimit (RLIMIT_CPU, &rlTime);
+        rlTime.rlim_cur = 2;
+        setrlimit (RLIMIT_CPU, &rlTime);
+        
+    struct sigaction sact;
+    sigaction(SIGALRM, &sact, NULL);
+    alarm(2);
+    printf("begin child process\n");
+    execve(argv[1], new_argv, NULL);
+    perror("execve");
+  }
+  else{ //parent handling of what happened in execve
     printf("we are in parent\n");
     int status;
     waitpid(child_pid, &status,0);
@@ -59,26 +82,10 @@ int main(int argc, char *argv[]) {
       return 128;
     }
   }
-  else{ //run program using execve this is child
-    getrlimit (RLIMIT_DATA, &rlMem);
-    rlMem.rlim_cur = 64*1024*1024;
-    setrlimit (RLIMIT_DATA, &rlMem);
-
-    getrlimit (RLIMIT_FSIZE, &rlFSize);
-    rlFSize.rlim_cur = 1;
-    setrlimit (RLIMIT_FSIZE, &rlFSize);
-        
-    getrlimit (RLIMIT_CPU, &rlTime);
-    rlTime.rlim_cur = 60;
-    setrlimit (RLIMIT_CPU, &rlTime);
-    printf("begin child process\n");
-    execve(argv[1], new_argv, NULL);
-    printf("done\n");
+   exit(EXIT_FAILURE);
      
-  }
-  //run_confine(name, new_argv);
+  
 
   }
   
-  //exit(EXIT_FAILURE);
 

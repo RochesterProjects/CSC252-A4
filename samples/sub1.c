@@ -13,9 +13,9 @@ int main(int argc, char *argv[]) {
   }
 
   int i = 1;
-
   while(strcmp(argv[i], "0") != 0) {
 	printf("arg %d: %d\n", i, atoi(argv[i]));
+  
   }
 
   return 0;
