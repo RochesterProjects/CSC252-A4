@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h> 
+ #include <sys/time.h>
+#include <sys/resource.h>
 
 
 void print_array(char* arr[], int n){
@@ -27,6 +29,11 @@ int main(int argc, char *argv[]) {
   printf("here\n");
   pid_t parent = getpid();
   pid_t child_pid = fork();
+  
+  struct rlimit rlMem;
+  struct rlimit rlFSize;
+  struct rlimit rlTime;
+
   if(child_pid == -1){
     printf("error, failed to fork\n");
     exit(1);
@@ -48,11 +55,22 @@ int main(int argc, char *argv[]) {
     else if( WIFSIGNALED(status ) ){ //terminated by bug
       // Child is terminated by a signal
       int sig_no = WTERMSIG(status);
-      printf("failed with singal number %d\n", sig_no);
+      printf("failed with signal number %d\n", sig_no);
       return 128;
     }
   }
-  else{ //run program using execve
+  else{ //run program using execve this is child
+    getrlimit (RLIMIT_DATA, &rlMem);
+    rlMem.rlim_cur = 64*1024*1024;
+    setrlimit (RLIMIT_DATA, &rlMem);
+
+    getrlimit (RLIMIT_FSIZE, &rlFSize);
+    rlFSize.rlim_cur = 1;
+    setrlimit (RLIMIT_FSIZE, &rlFSize);
+        
+    getrlimit (RLIMIT_CPU, &rlTime);
+    rlTime.rlim_cur = 60;
+    setrlimit (RLIMIT_CPU, &rlTime);
     printf("begin child process\n");
     execve(argv[1], new_argv, NULL);
     printf("done\n");
