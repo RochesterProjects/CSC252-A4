@@ -8,16 +8,6 @@
 #include <sys/resource.h>
 
 
-/*char* print_array(char* arr[], int n){
-  char* str = "";
-  for(int i = 0; i < n; i++){
-    str += arr[i];
-
-  }
-  str += "\n";
-  return str;
-  
-}*/
 int main(int argc, char *argv[]) {  
   /*if(argc == 1){
     fprintf(stderr, "Usage: %s <file-to-exec>\n", argv[0]);
@@ -96,7 +86,9 @@ int main(int argc, char *argv[]) {
       //printf("failed with signal number %d\n", sig_no);
       if(sig_no == 14){
         fputs("TIMEOUT", fp);
-      }else{
+      }else if (sig_no == 11){
+        fputs("NORMAL", fp);
+      }else {
         fputs("TERMINTATED", fp);
       }
       return 127;
