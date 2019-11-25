@@ -86,10 +86,8 @@ int main(int argc, char *argv[]) {
       //printf("failed with signal number %d\n", sig_no);
       if(sig_no == 14){
         fputs("TIMEOUT", fp);
-      }else if (sig_no == 11){
-        fputs("NORMAL", fp);
       }else {
-        fputs("TERMINTATED", fp);
+        fputs("TERMINATED", fp);
       }
       return 127;
     }
