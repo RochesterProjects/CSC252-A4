@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   }
   new_argv[argc - 1] = NULL;
   /**begin forking process **/
-  printf("here\n");
+ // printf("here\n");
   pid_t parent = getpid();
   pid_t child_pid = fork();
   
