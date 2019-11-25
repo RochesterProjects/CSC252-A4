@@ -39,24 +39,31 @@ int main(int argc, char *argv[]) {
     printf("error, failed to fork\n");
     exit(1);
   }
+
+  FILE *fp = NULL;
+  char* outfilename = "confine_results.txt";
+
+  fp = fopen(outfilename,"w");
+  if(fp == NULL){
+    printf("Unable to create file.\n");
+    exit(EXIT_FAILURE);
+  }
+
+
   if(child_pid == 0){//child
-     getrlimit (RLIMIT_DATA, &rlMem);
-    rlMem.rlim_cur = 1024;
-    rlMem.rlim_max = 1024;
-    setrlimit (RLIMIT_DATA, &rlMem);
+     getrlimit (RLIMIT_AS, &rlMem);
+    rlMem.rlim_cur = 64*1024*1024;
+    rlMem.rlim_max = 64*1024*1024;;
+    setrlimit (RLIMIT_AS, &rlMem);
 
     getrlimit (RLIMIT_FSIZE, &rlFSize);
-    rlFSize.rlim_cur = 1024*1024;
-    rlFSize.rlim_max = 1024*1024;
+    rlFSize.rlim_cur = 4*1024*1024;
+    rlFSize.rlim_max = 4*1024*1024;
     setrlimit (RLIMIT_FSIZE, &rlFSize);
 
-     getrlimit (RLIMIT_CPU, &rlTime);
-        rlTime.rlim_cur = 2;
-        setrlimit (RLIMIT_CPU, &rlTime);
-        
     struct sigaction sact;
     sigaction(SIGALRM, &sact, NULL);
-    alarm(2);
+    alarm(60);
     printf("begin child process\n");
     execve(argv[1], new_argv, NULL);
     perror("execve");
@@ -69,6 +76,7 @@ int main(int argc, char *argv[]) {
     if( WIFEXITED(status) ){ 
       int value = WEXITSTATUS(status);
       printf("returned value %d\n", value);
+      fputs("NORMAL", fp);
       if(value < 65){
         return value;
       }else{
@@ -79,9 +87,15 @@ int main(int argc, char *argv[]) {
       // Child is terminated by a signal
       int sig_no = WTERMSIG(status);
       printf("failed with signal number %d\n", sig_no);
-      return 128;
+      if(sig_no == 14){
+        fputs("TIMEOUT", fp);
+      }else{
+        fputs("TERMINTATED", fp);
+      }
+      return 127;
     }
   }
+  fclose(fp);
    exit(EXIT_FAILURE);
      
   
