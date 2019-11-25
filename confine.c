@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
   }
 
   FILE *fp = NULL;
-  char* outfilename = "confine_results.txt";
+  char* outfilename = "confine_result.txt";
 
   fp = fopen(outfilename,"w");
   if(fp == NULL){
