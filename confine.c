@@ -8,23 +8,33 @@
 #include <sys/resource.h>
 
 
-void print_array(char* arr[], int n){
+/*char* print_array(char* arr[], int n){
+  char* str = "";
   for(int i = 0; i < n; i++){
-    printf("array[%d]: %s\n", i, arr[i]);
+    str += arr[i];
 
   }
+  str += "\n";
+  return str;
   
-}
+}*/
 int main(int argc, char *argv[]) {  
   /*if(argc == 1){
     fprintf(stderr, "Usage: %s <file-to-exec>\n", argv[0]);
     exit(EXIT_FAILURE);            
   }*/
   /** set up arg array for execve */ 
+  FILE *fp = NULL;
+  char* outfilename = "confine_result.txt";
+  fp = fopen(outfilename,"w");
   char* new_argv[argc]; // = construct_args(argc,argv)
   for(int i = 1; i < argc; i++){
     new_argv[i - 1] = argv[i];
+    fputs(argv[i],fp);
+    fputs(" ", fp);
+
   }
+  fputs("\n", fp);
   new_argv[argc - 1] = NULL;
   /**begin forking process **/
  // printf("here\n");
@@ -40,10 +50,7 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  FILE *fp = NULL;
-  char* outfilename = "confine_result.txt";
-
-  fp = fopen(outfilename,"w");
+  
   if(fp == NULL){
     printf("Unable to create file.\n");
     exit(EXIT_FAILURE);

@@ -1,0 +1,2 @@
+./samples/sub1 0 
+NORMAL
