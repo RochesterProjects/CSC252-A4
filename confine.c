@@ -64,18 +64,18 @@ int main(int argc, char *argv[]) {
     struct sigaction sact;
     sigaction(SIGALRM, &sact, NULL);
     alarm(60);
-    printf("begin child process\n");
+    //printf("begin child process\n");
     execve(argv[1], new_argv, NULL);
     perror("execve");
   }
   else{ //parent handling of what happened in execve
-    printf("we are in parent\n");
+    //printf("we are in parent\n");
     int status;
     waitpid(child_pid, &status,0);
-    printf("status is %d\n", status);
+   // printf("status is %d\n", status);
     if( WIFEXITED(status) ){ 
       int value = WEXITSTATUS(status);
-      printf("returned value %d\n", value);
+     // printf("returned value %d\n", value);
       fputs("NORMAL", fp);
       if(value < 65){
         return value;
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
     else if( WIFSIGNALED(status ) ){ //terminated by bug
       // Child is terminated by a signal
       int sig_no = WTERMSIG(status);
-      printf("failed with signal number %d\n", sig_no);
+      //printf("failed with signal number %d\n", sig_no);
       if(sig_no == 14){
         fputs("TIMEOUT", fp);
       }else{
